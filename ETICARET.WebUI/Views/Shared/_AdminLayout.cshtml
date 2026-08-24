@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin Paneli</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="~/css/admin-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/atelier-admin.css" asp-append-version="true" />
+</head>
+<body>
+    @{
+        var currentUrl = Context.Request.Path.Value?.ToLower() ?? "";
+    }
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="admin-sidebar-header">
+                <h3>üçüncü<span>binyıl</span></h3>
+                <div class="admin-brand-caption"><span></span> Yönetim merkezi</div>
+            </div>
+            <ul class="admin-nav">
+                <li class="admin-nav-item">
+                    <a href="/admin" class="admin-nav-link @(currentUrl == "/admin" ? "active" : "")">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="/admin/productlist" class="admin-nav-link @(currentUrl.Contains("/product") ? "active" : "")">
+                        <i class="fas fa-box-open"></i> Ürünler
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="/admin/categorylist" class="admin-nav-link @(currentUrl.Contains("/category") ? "active" : "")">
+                        <i class="fas fa-tags"></i> Kategoriler
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="/admin/userlist" class="admin-nav-link @(currentUrl.Contains("/user") ? "active" : "")">
+                        <i class="fas fa-users"></i> Hesaplar
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a href="/admin/commentlist" class="admin-nav-link @(currentUrl.Contains("/comment") ? "active" : "")">
+                        <i class="fas fa-comments"></i> Yorumlar
+                    </a>
+                </li>
+            </ul>
+            <div class="admin-sidebar-footer">
+                <a href="/" class="admin-store-link"><i class="fas fa-arrow-up-right-from-square"></i> Mağazaya dön</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Topbar -->
+            <header class="admin-topbar">
+                <div class="admin-topbar-title">
+                    <span>Yönetim merkezi</span>
+                    <h4>@ViewData["Title"]</h4>
+                </div>
+                <div class="topbar-user">
+                    <div class="text-end d-none d-md-block">
+                        <div class="topbar-user-name">@User.Identity?.Name</div>
+                        <div class="topbar-user-role">Yönetici</div>
+                    </div>
+                    <div class="avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="admin-content">
+                @if (TempData["message"] != null)
+                {
+                    <partial name="_resultMessage" model="@(TempData.Get<ResultModel>("message"))" />
+                }
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

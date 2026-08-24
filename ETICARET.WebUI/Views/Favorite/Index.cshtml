@@ -1,0 +1,37 @@
+@model List<ETICARET.Entities.Favorite>
+@{
+    ViewData["Title"] = "Favorilerim";
+}
+
+<section class="tb-list-heading">
+    <div>
+        <span class="tb-eyebrow">KİŞİSEL KOLEKSİYON</span>
+        <h1>Favorilerim</h1>
+        <p>Beğendiğiniz ürünleri tek bir yerde saklayın ve dilediğiniz zaman yeniden keşfedin.</p>
+    </div>
+    <span id="favorite-page-count" class="badge rounded-pill text-bg-light border px-3 py-2">@(Model?.Count ?? 0) Ürün</span>
+</section>
+
+@if (Model == null || Model.Count == 0)
+{
+    <div class="tb-empty-state">
+        <i class="far fa-heart"></i>
+        <h3>Favori listeniz henüz boş</h3>
+        <p>Ürün kartlarındaki kalp simgesine dokunarak koleksiyonunuzu oluşturmaya başlayın.</p>
+        <a href="/products/all" class="hb-btn-orange mt-3 px-4">Ürünleri Keşfet</a>
+    </div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-5 g-3 g-xl-4">
+        @foreach (var favorite in Model)
+        {
+            if (favorite.Product != null)
+            {
+                <div class="col" id="favorite-card-@favorite.Product.Id">
+                    <partial name="_products" model="@favorite.Product" />
+                </div>
+            }
+        }
+    </div>
+}

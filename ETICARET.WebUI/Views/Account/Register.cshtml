@@ -1,0 +1,120 @@
+@model RegisterModel
+@{
+    ViewData["Title"] = "Üye Ol";
+}
+
+@section Scripts {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+}
+
+<style>
+    body {
+        background-color: #fcfcfc;
+    }
+    .hb-register-container {
+        max-width: 420px;
+        margin: 60px auto;
+        background: #fff;
+        padding: 40px 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        border: 1px solid #eaeaea;
+    }
+    .hb-register-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #484848;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+    .hb-form-control {
+        height: 52px;
+        border-radius: 8px;
+        border: 1px solid #d1d1d1;
+        font-size: 15px;
+        padding-left: 18px;
+    }
+    .hb-form-control:focus {
+        border-color: var(--hb-orange, #ff6000);
+        box-shadow: 0 0 0 0.2rem rgba(255, 96, 0, 0.15);
+        outline: none;
+    }
+    .hb-btn-register {
+        background-color: var(--hb-orange, #ff6000);
+        color: #fff;
+        height: 52px;
+        font-weight: 700;
+        font-size: 16px;
+        border-radius: 8px;
+        border: none;
+        width: 100%;
+        transition: background-color 0.2s;
+        margin-top: 10px;
+    }
+    .hb-btn-register:hover {
+        background-color: #e55600;
+        color: #fff;
+    }
+    .hb-login-prompt {
+        text-align: center;
+        margin-top: 30px;
+        font-size: 14px;
+        color: #484848;
+        padding-top: 20px;
+        border-top: 1px solid #eaeaea;
+    }
+    .hb-login-prompt a {
+        color: var(--hb-orange, #ff6000);
+        font-weight: 700;
+        text-decoration: none;
+    }
+    .hb-login-prompt a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="container">
+    <div class="hb-register-container">
+        
+        <h2 class="hb-register-title">Yeni Üyelik Oluştur</h2>
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3 text-center small fw-bold"></div>
+
+        <form asp-action="Register" asp-controller="Account">
+            @Html.AntiForgeryToken()
+
+            <div class="form-group mb-3">
+                <input asp-for="FullName" class="form-control hb-form-control" placeholder="Ad Soyad" />
+                <span asp-validation-for="FullName" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <input asp-for="UserName" class="form-control hb-form-control" placeholder="Kullanıcı Adı" />
+                <span asp-validation-for="UserName" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <input asp-for="Email" class="form-control hb-form-control" placeholder="E-posta Adresi" />
+                <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <input asp-for="Password" class="form-control hb-form-control" placeholder="Şifre" type="password" />
+                <span asp-validation-for="Password" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <div class="form-group mb-4">
+                <input asp-for="RePassword" class="form-control hb-form-control" placeholder="Şifre Tekrarı" type="password" />
+                <span asp-validation-for="RePassword" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <button type="submit" class="hb-btn-register">Üye Ol</button>
+
+        </form>
+
+        <div class="hb-login-prompt">
+            Zaten hesabın var mı? <a asp-action="Login" asp-controller="Account">Giriş Yap</a>
+        </div>
+    </div>
+</div>

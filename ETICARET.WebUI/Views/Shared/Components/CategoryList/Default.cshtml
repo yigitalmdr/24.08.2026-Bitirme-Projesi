@@ -1,0 +1,17 @@
+@model CategoryListViewModel
+
+<ul class="list-group hb-categories">
+    <a href="/products/all" class="text-decoration-none">
+        <li class="list-group-item list-group-item-action">
+            <strong>Tüm Ürünler</strong>
+        </li>
+    </a>
+    @foreach (var category in Model.Categories)
+    {
+       <a asp-controller="Shop" asp-action="List" asp-route-category="@category.Name.ToLower()"
+       class="list-group-item list-group-item-action @(Model.SelectedCategory == category.Name.ToLower() ? "active" : "")">
+   
+        @category.Name
+        </a>
+    }
+</ul>

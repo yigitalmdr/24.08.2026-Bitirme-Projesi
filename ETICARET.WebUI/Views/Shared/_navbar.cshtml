@@ -1,0 +1,116 @@
+@using Microsoft.AspNetCore.Identity
+@using ETICARET.WebUI.Identity
+@inject ETICARET.Business.Abstract.ICategoryService CategoryService
+@inject ETICARET.Business.Abstract.ICartService CartService
+@inject ETICARET.Business.Abstract.IFavoriteService FavoriteService
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    int cartCount = 0;
+    int favCount = 0;
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        var user = await UserManager.GetUserAsync(User);
+        if (user != null)
+        {
+            cartCount = CartService.GetCartByUserId(user.Id)?.CartItems?.Sum(item => item.Quantity) ?? 0;
+            favCount = FavoriteService.GetFavoritesByUserId(user.Id)?.Count ?? 0;
+        }
+    }
+
+    var currentPath = Context.Request.Path.Value?.ToLowerInvariant() ?? string.Empty;
+    var allCategories = CategoryService.GetAll();
+    var featuredCategories = allCategories.Take(7).ToList();
+    var remainingCategories = allCategories.Skip(7).ToList();
+}
+
+<header class="tb-site-header">
+    <nav class="navbar navbar-expand-lg tb-navbar" aria-label="Ana menü">
+        <div class="container-fluid site-shell">
+            <a class="tb-brand" asp-controller="Home" asp-action="Index" aria-label="üçüncübinyıl anasayfa">
+                <span class="tb-brand-copy">
+                    <strong><span class="tb-brand-accent">üçüncü</span><span class="tb-brand-dark">binyıl</span></strong>
+                    <small>TEKNOLOJİ MAĞAZASI</small>
+                </span>
+            </a>
+
+            <button class="navbar-toggler tb-menu-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#primaryNavigation" aria-controls="primaryNavigation" aria-expanded="false" aria-label="Menüyü aç">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="primaryNavigation">
+                <form class="tb-search" action="/products" method="get" role="search">
+                    <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+                    <input type="search" name="search" placeholder="Ne aramıştınız?" aria-label="Ürün ara" />
+                    <button type="submit">Ara</button>
+                </form>
+
+                <div class="tb-actions">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        @if (User.IsInRole("admin"))
+                        {
+                            <a class="tb-action tb-action-admin" asp-controller="Admin" asp-action="Index"><i class="fas fa-grid-2"></i><span>Yönetim</span></a>
+                        }
+
+                        <a class="tb-action" asp-controller="Favorite" asp-action="Index" title="Favorilerim">
+                            <span class="tb-action-icon"><i class="far fa-heart"></i><span id="favorite-count-badge" class="tb-count @((favCount == 0) ? "d-none" : "")">@favCount</span></span>
+                            <span>Favoriler</span>
+                        </a>
+
+                        <div class="dropdown">
+                            <button class="tb-action dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><span class="tb-action-icon"><i class="far fa-user"></i></span><span>Hesabım</span></button>
+                            <ul class="dropdown-menu dropdown-menu-end tb-dropdown">
+                                <li class="tb-dropdown-user"><small>Giriş yapıldı</small><strong>@User.Identity.Name</strong></li>
+                                <li><a class="dropdown-item" asp-controller="Account" asp-action="Manage"><i class="far fa-id-card me-2"></i>Hesap Bilgilerim</a></li>
+                                @if (!User.IsInRole("admin"))
+                                {
+                                    <li><a class="dropdown-item" asp-controller="Cart" asp-action="GetOrders"><i class="fas fa-box me-2"></i>Siparişlerim</a></li>
+                                }
+                                <li><hr class="dropdown-divider" /></li>
+                                <li><form asp-controller="Account" asp-action="Logout" method="post"><button type="submit" class="dropdown-item text-danger"><i class="fas fa-arrow-right-from-bracket me-2"></i>Çıkış Yap</button></form></li>
+                            </ul>
+                        </div>
+
+                        @if (!User.IsInRole("admin"))
+                        {
+                            <a class="tb-action tb-cart-action" asp-controller="Cart" asp-action="Index">
+                                <span class="tb-action-icon"><i class="fas fa-bag-shopping"></i>@if (cartCount > 0) { <span class="tb-count">@cartCount</span> }</span><span>Sepetim</span>
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <a class="tb-action" asp-controller="Account" asp-action="Login"><span class="tb-action-icon"><i class="far fa-user"></i></span><span>Giriş Yap</span></a>
+                        <a class="tb-action tb-cart-action" asp-controller="Cart" asp-action="Index"><span class="tb-action-icon"><i class="fas fa-bag-shopping"></i></span><span>Sepetim</span></a>
+                    }
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="tb-category-bar">
+        <div class="container-fluid site-shell">
+            <div class="tb-category-scroll">
+                <a class="tb-category-all @(currentPath.Contains("/products/all") ? "active" : "")" href="/products/all"><i class="fas fa-border-all me-2"></i>Tüm Ürünler</a>
+                @foreach (var category in featuredCategories)
+                {
+                    var slug = category.Name.ToLowerInvariant();
+                    <a asp-controller="Shop" asp-action="List" asp-route-category="@slug" class="@(currentPath.Contains($"/products/{slug}") ? "active" : "")">@category.Name</a>
+                }
+                @if (remainingCategories.Count > 0)
+                {
+                    <div class="dropdown">
+                        <button class="tb-category-more dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Diğer</button>
+                        <ul class="dropdown-menu tb-dropdown">
+                            @foreach (var category in remainingCategories)
+                            {
+                                <li><a class="dropdown-item" asp-controller="Shop" asp-action="List" asp-route-category="@category.Name.ToLowerInvariant()">@category.Name</a></li>
+                            }
+                        </ul>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</header>

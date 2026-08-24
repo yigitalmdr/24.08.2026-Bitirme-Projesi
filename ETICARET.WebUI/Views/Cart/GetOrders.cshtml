@@ -1,0 +1,310 @@
+@model List<OrderListModel>
+@{
+    ViewData["Title"] = "Siparişlerim";
+}
+<style>
+    body {
+        background-color: #f5f5f5;
+    }
+    .order-card {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid #eaeaea;
+        padding: 25px;
+        margin-bottom: 30px;
+    }
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #eaeaea;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+    }
+    .order-id {
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: #484848;
+    }
+    .order-date {
+        color: #777;
+        font-size: 0.9rem;
+    }
+    
+    /* Order Status Progress Bar */
+    .tracking-wrapper {
+        padding: 20px 0;
+        position: relative;
+    }
+    .progress-track {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        width: 100%;
+        margin-bottom: 30px;
+    }
+    .progress-track::before {
+        display: none; /* Removing old line style */
+    }
+    .progress-line-wrapper {
+        position: absolute;
+        top: 20px;
+        left: 40px;
+        right: 40px;
+        height: 4px;
+        background-color: #eaeaea;
+        z-index: 1;
+    }
+    .progress-bar-fill {
+        height: 100%;
+        background-color: var(--hb-orange, #ff6000);
+        transition: width 0.5s ease;
+    }
+    .step {
+        text-align: center;
+        position: relative;
+        z-index: 3;
+        flex: 1;
+    }
+    .step-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background-color: #eaeaea;
+        color: #aaa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        font-size: 1.1rem;
+        border: 4px solid #fff;
+        transition: all 0.3s ease;
+    }
+    .step.completed .step-icon {
+        background-color: var(--hb-orange, #ff6000);
+        color: #fff;
+    }
+    .step.active .step-icon {
+        background-color: #fff;
+        color: var(--hb-orange, #ff6000);
+        border-color: var(--hb-orange, #ff6000);
+        box-shadow: 0 0 0 4px rgba(255, 96, 0, 0.2);
+    }
+    .step-text {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #777;
+    }
+    .step.completed .step-text, .step.active .step-text {
+        color: #484848;
+    }
+    
+    .product-list {
+        margin-top: 25px;
+    }
+    .product-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        padding: 10px;
+        border-radius: 6px;
+        background-color: #fcfcfc;
+        border: 1px solid #f0f0f0;
+    }
+    .product-img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-right: 15px;
+    }
+    .product-details {
+        flex: 1;
+    }
+    .product-name {
+        font-weight: 600;
+        color: #484848;
+        margin-bottom: 2px;
+    }
+    .product-qty {
+        font-size: 0.85rem;
+        color: #777;
+    }
+    .product-price {
+        font-weight: 700;
+        color: var(--hb-orange, #ff6000);
+    }
+</style>
+
+<div class="container mt-5 mb-5">
+    @if (TempData["PaymentSuccess"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i> @TempData["PaymentSuccess"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <h2 class="mb-4 fw-bold" style="color: #484848;">Siparişlerim</h2>
+    @if(Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">Henüz hiç siparişiniz bulunmamaktadır.</div>
+    }
+    else
+    {
+        foreach (var order in Model.OrderByDescending(x => x.OrderDate))
+        {
+            <!-- Order Card -->
+            <div class="order-card">
+                <div class="order-header">
+                    <div>
+                        <div class="order-id">Sipariş No: #@order.OrderNumber</div>
+                        <div class="order-date">Sipariş Tarihi: @order.OrderDate.ToString("dd MMMM yyyy HH:mm")</div>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold fs-5 text-dark">@order.TotalPrice().ToString("N2") TL</div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary mt-1" data-bs-toggle="modal" data-bs-target="#invoiceModal-@order.OrderId">Fatura Görüntüle</button>
+                    </div>
+                </div>
+
+                <div class="tracking-wrapper">
+                    <!-- Progress Bar Logic Based on OrderState -->
+                    @{
+                        int progress = 25;
+                        if(order.OrderState == ETICARET.Entities.EnumOrderState.completed) progress = 100;
+                        else if(order.OrderState == ETICARET.Entities.EnumOrderState.unpaid) progress = 10;
+                    }
+                    <div class="progress-track">
+                        <div class="progress-line-wrapper">
+                            <div class="progress-bar-fill" style="width: @progress%;"></div>
+                        </div>
+                        
+                        <div class="step completed">
+                            <div class="step-icon"><i class="fas fa-check"></i></div>
+                            <div class="step-text">Sipariş Alındı</div>
+                        </div>
+                        
+                        <div class="step @(progress >= 50 ? "completed" : (progress >= 25 ? "active" : ""))">
+                            <div class="step-icon"><i class="fas fa-box"></i></div>
+                            <div class="step-text">Hazırlanıyor</div>
+                        </div>
+                        
+                        <div class="step @(progress >= 75 ? "completed" : (progress >= 50 ? "active" : ""))">
+                            <div class="step-icon"><i class="fas fa-truck"></i></div>
+                            <div class="step-text">Kargoya Verildi</div>
+                        </div>
+                        
+                        <div class="step @(progress >= 100 ? "completed" : "")">
+                            <div class="step-icon"><i class="fas fa-home"></i></div>
+                            <div class="step-text">Teslim Edildi</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-list">
+                    <h6 class="fw-bold mb-3">Sipariş İçeriği</h6>
+                    @foreach(var item in order.OrderItems)
+                    {
+                        <div class="product-item">
+                            @if(!string.IsNullOrEmpty(item.ImageUrl))
+                            {
+                                <a href="/Shop/Details/@item.ProductId">
+                                    <img src="@ProductImageHelper.GetUrl(item.ImageUrl)" alt="@item.Name" class="product-img" style="width: 60px; height: 60px; object-fit: cover; margin-right: 15px; border-radius: 4px;" onerror="this.src='@ProductImageHelper.GetUrl(null)'" />
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="/Shop/Details/@item.ProductId" class="text-decoration-none">
+                                    <div class="bg-white border rounded d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; margin-right: 15px;">
+                                        <i class="fas fa-image text-muted fs-3"></i>
+                                    </div>
+                                </a>
+                            }
+                            <div class="product-details">
+                                <a href="/Shop/Details/@item.ProductId" class="product-name text-decoration-none d-block">@item.Name</a>
+                                <div class="product-qty">Adet: @item.Quantity</div>
+                            </div>
+                            <div class="product-price">@item.Price.ToString("N2") TL</div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Invoice Modal -->
+            <div class="modal fade" id="invoiceModal-@order.OrderId" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header border-bottom-0">
+                            <h5 class="modal-title fw-bold">Fatura Detayı - #@order.OrderNumber</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body" id="printableInvoice-@order.OrderId">
+                            <div class="row mb-4">
+                                <div class="col-sm-6">
+                                    <h6 class="text-muted mb-1">Fatura Adresi:</h6>
+                                    <div><strong>@order.FirstName @order.LastName</strong></div>
+                                    <div>@order.Address</div>
+                                    <div>@order.City</div>
+                                    <div>@order.Phone</div>
+                                    <div>@order.Email</div>
+                                </div>
+                                <div class="col-sm-6 text-sm-end mt-3 mt-sm-0">
+                                    <h6 class="text-muted mb-1">Fatura Bilgileri:</h6>
+                                    <div><strong>Tarih:</strong> @order.OrderDate.ToString("dd.MM.yyyy")</div>
+                                    <div><strong>Sipariş No:</strong> @order.OrderNumber</div>
+                                    <div><strong>Ödeme Yöntemi:</strong> Kredi Kartı (Iyzico 3D Secure)</div>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Ürün</th>
+                                            <th class="text-center">Birim Fiyat</th>
+                                            <th class="text-center">Adet</th>
+                                            <th class="text-end">Toplam</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach(var item in order.OrderItems)
+                                        {
+                                            <tr>
+                                                <td>@item.Name</td>
+                                                <td class="text-center">@item.Price.ToString("N2") TL</td>
+                                                <td class="text-center">@item.Quantity</td>
+                                                <td class="text-end">@((item.Price * item.Quantity).ToString("N2")) TL</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="3" class="text-end fw-bold">Genel Toplam:</td>
+                                            <td class="text-end fw-bold text-success">@order.TotalPrice().ToString("N2") TL</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-top-0">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                            <button type="button" class="btn btn-primary" onclick="printInvoice('printableInvoice-@order.OrderId')"><i class="fas fa-print me-2"></i>Yazdır</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<script>
+    function printInvoice(divId) {
+        var printContents = document.getElementById(divId).innerHTML;
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        window.location.reload(); // To restore events
+    }
+</script>

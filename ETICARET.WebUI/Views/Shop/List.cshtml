@@ -1,0 +1,61 @@
+@using ETICARET.Entities
+@using System.Globalization
+@model ProductListModel
+@{
+    ViewData["Title"] = "Ürünler";
+    var categoryName = string.IsNullOrWhiteSpace(Model.PageInfo.CurrentCategory) || Model.PageInfo.CurrentCategory.Equals("all", StringComparison.OrdinalIgnoreCase)
+        ? "Tüm Ürünler"
+        : Model.PageInfo.CurrentCategory;
+    if (!categoryName.Equals("Tüm Ürünler", StringComparison.OrdinalIgnoreCase))
+    {
+        var turkishText = CultureInfo.GetCultureInfo("tr-TR").TextInfo;
+        categoryName = turkishText.ToTitleCase(categoryName.ToLower(CultureInfo.GetCultureInfo("tr-TR")));
+    }
+}
+
+<section class="tb-list-heading">
+    <div><span class="tb-eyebrow">KOLEKSİYON</span><h1>@categoryName</h1><p>@Model.PageInfo.TotalItems ürün arasından size uygun olanı bulun.</p></div>
+    <a href="/" class="tb-back-link"><i class="fas fa-arrow-left"></i> Anasayfa</a>
+</section>
+
+<div class="row g-4 g-xl-5 align-items-start">
+    <aside class="col-lg-3 tb-filter-column">
+        <div class="tb-filter-panel">
+            <div class="tb-filter-title"><span>Filtreler</span><i class="fas fa-sliders"></i></div>
+            <form method="get" action="/products/@(string.IsNullOrEmpty(Model.PageInfo.CurrentCategory) ? "all" : Model.PageInfo.CurrentCategory)">
+                <div class="tb-filter-group">
+                    <label for="product-search">Kelime Ara</label>
+                    <div class="tb-filter-input"><i class="fas fa-magnifying-glass"></i><input id="product-search" type="text" name="search" placeholder="Ürün adı veya açıklaması" value="@Context.Request.Query["search"]" /></div>
+                </div>
+                <div class="tb-filter-group">
+                    <label>Sıralama</label>
+                    <label class="tb-radio"><input type="radio" name="sort" value="price_asc" @(Context.Request.Query["sort"] == "price_asc" ? "checked" : "") /><span>En düşük fiyat</span></label>
+                    <label class="tb-radio"><input type="radio" name="sort" value="price_desc" @(Context.Request.Query["sort"] == "price_desc" ? "checked" : "") /><span>En yüksek fiyat</span></label>
+                </div>
+                <div class="tb-filter-group">
+                    <label>Fiyat Aralığı</label>
+                    <div class="tb-price-grid"><input type="number" name="minPrice" placeholder="En az" value="@Context.Request.Query["minPrice"]" /><input type="number" name="maxPrice" placeholder="En çok" value="@Context.Request.Query["maxPrice"]" /></div>
+                </div>
+                <button type="submit" class="hb-btn-orange">Filtreleri Uygula</button>
+                <a href="/products/@(string.IsNullOrEmpty(Model.PageInfo.CurrentCategory) ? "all" : Model.PageInfo.CurrentCategory)" class="hb-btn-outline mt-2">Temizle</a>
+            </form>
+        </div>
+    </aside>
+
+    <div class="col-lg-9">
+        @if (Model.Products != null && Model.Products.Count > 0)
+        {
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3 g-xl-4">
+                @foreach (Product product in Model.Products)
+                {
+                    <div class="col"><partial name="_products" for="@product" /></div>
+                }
+            </div>
+            <div class="d-flex justify-content-center mt-5" page-model="@Model.PageInfo"></div>
+        }
+        else
+        {
+            <div class="tb-empty-state"><i class="fas fa-magnifying-glass"></i><h3>Sonuç bulunamadı</h3><p>Filtreleri değiştirerek yeniden deneyin.</p></div>
+        }
+    </div>
+</div>

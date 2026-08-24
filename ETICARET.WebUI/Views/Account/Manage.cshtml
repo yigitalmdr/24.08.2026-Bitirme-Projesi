@@ -1,0 +1,121 @@
+@model AccountModel
+
+@{
+    ViewData["Title"] = "Hesabımı Yönet";
+}
+
+@section Scripts {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+}
+
+<style>
+    body {
+        background-color: #fcfcfc;
+    }
+    .hb-manage-container {
+        max-width: 420px;
+        margin: 60px auto;
+        background: #fff;
+        padding: 40px 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        border: 1px solid #eaeaea;
+    }
+    .hb-manage-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #484848;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+    .hb-form-label {
+        font-weight: 600;
+        font-size: 14px;
+        color: #484848;
+        margin-bottom: 5px;
+        display: block;
+        text-align: left;
+    }
+    .hb-form-control {
+        height: 52px;
+        border-radius: 8px;
+        border: 1px solid #d1d1d1;
+        font-size: 15px;
+        padding-left: 18px;
+    }
+    .hb-form-control:focus {
+        border-color: var(--hb-orange, #ff6000);
+        box-shadow: 0 0 0 0.2rem rgba(255, 96, 0, 0.15);
+        outline: none;
+    }
+    .hb-btn-manage {
+        background-color: var(--hb-orange, #ff6000);
+        color: #fff;
+        height: 52px;
+        font-weight: 700;
+        font-size: 16px;
+        border-radius: 8px;
+        border: none;
+        width: 100%;
+        transition: background-color 0.2s;
+        margin-top: 10px;
+    }
+    .hb-btn-manage:hover {
+        background-color: #e55600;
+        color: #fff;
+    }
+</style>
+
+<div class="container">
+    <div class="hb-manage-container">
+        
+        <h2 class="hb-manage-title">Hesap Bilgilerim</h2>
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3 text-center small fw-bold"></div>
+
+        <form asp-action="Manage" asp-controller="Account" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="Id" value="@Model.Id" />
+
+            <div class="form-group mb-3">
+                <label for="FullName" class="hb-form-label">Ad Soyad</label>
+                <input asp-for="FullName"
+                       class="form-control hb-form-control"
+                       id="FullName"
+                       name="FullName"
+                       value="@Model.FullName"
+                       placeholder="Ad Soyad"
+                       required />
+                <span asp-validation-for="FullName" class="text-danger small mt-1 d-block text-start"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="UserName" class="hb-form-label">Kullanıcı Adı</label>
+                <input asp-for="UserName"
+                       class="form-control hb-form-control"
+                       id="UserName"
+                       name="UserName"
+                       value="@Model.UserName"
+                       placeholder="Kullanıcı Adı"
+                       required />
+                <span asp-validation-for="UserName" class="text-danger small mt-1 d-block text-start"></span>
+            </div>
+
+            <div class="form-group mb-4">
+                <label for="Email" class="hb-form-label">E-posta Adresi</label>
+                <input asp-for="Email"
+                       class="form-control hb-form-control"
+                       id="Email"
+                       name="Email"
+                       value="@Model.Email"
+                       placeholder="E-posta Adresi"
+                       required />
+                <span asp-validation-for="Email" class="text-danger small mt-1 d-block text-start"></span>
+            </div>
+
+            <button type="submit" class="hb-btn-manage">Bilgilerimi Güncelle</button>
+
+        </form>
+    </div>
+</div>

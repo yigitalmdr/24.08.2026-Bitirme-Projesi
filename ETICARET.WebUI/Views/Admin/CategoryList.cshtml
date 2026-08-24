@@ -1,0 +1,73 @@
+@model ETICARET.WebUI.Models.CategoryListViewModel
+@{
+    ViewData["Title"] = "Kategori Yönetimi";
+    Layout = "_AdminLayout";
+    var categoryCount = Model.Categories?.Count ?? 0;
+}
+
+<div class="admin-list-page">
+    <div class="admin-page-heading">
+        <div>
+            <span class="admin-eyebrow"><i class="fas fa-layer-group"></i> Katalog yapısı</span>
+            <h1>Kategoriler</h1>
+            <p>Ürünlerin mağazada doğru başlıklar altında kolayca bulunmasını sağlayın.</p>
+        </div>
+        <a asp-controller="Admin" asp-action="CreateCategory" class="admin-primary-button"><i class="fas fa-plus"></i> Yeni kategori ekle</a>
+    </div>
+
+    <div class="admin-category-overview">
+        <span class="admin-category-overview-icon"><i class="fas fa-tags"></i></span>
+        <div><span>Aktif kategori</span><strong>@categoryCount</strong></div>
+        <p>Kategori adlarını düzenleyebilir veya artık kullanılmayan kategorileri kaldırabilirsiniz.</p>
+    </div>
+
+    <div class="admin-table-card">
+        <div class="admin-table-card-head">
+            <div><strong>Kategori listesi</strong><span>@categoryCount kayıt görüntüleniyor</span></div>
+            <span class="admin-table-status"><i></i> Mağazada aktif</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table admin-data-table category-table">
+                <thead>
+                    <tr>
+                        <th class="text-center" style="width: 100px;">ID</th>
+                        <th>Kategori adı</th>
+                        <th class="text-end" style="width: 210px;">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Categories != null && Model.Categories.Count > 0)
+                    {
+                        foreach (var item in Model.Categories)
+                        {
+                            <tr>
+                                <td class="text-center"><span class="admin-category-id">#@item.Id</span></td>
+                                <td><div class="admin-category-name"><span><i class="fas fa-folder"></i></span><strong>@item.Name</strong></div></td>
+                                <td class="text-end">
+                                    <a href="/admin/editcategory/@item.Id" class="admin-row-action edit"><i class="fas fa-pen"></i><span>Düzenle</span></a>
+                                    <form action="/admin/deletecategory" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="admin-row-action delete" onclick="return confirm('Bu kategoriyi silmek istediğinize emin misiniz?');"><i class="fas fa-trash-alt"></i><span>Sil</span></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="3">
+                                <div class="admin-empty-state">
+                                    <i class="fas fa-folder-open"></i>
+                                    <h5>Herhangi bir kategori bulunamadı.</h5>
+                                    <p>Sisteme yeni bir kategori eklemek için sağ üstteki butonu kullanabilirsiniz.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

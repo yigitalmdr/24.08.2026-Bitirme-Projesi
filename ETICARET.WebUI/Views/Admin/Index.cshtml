@@ -1,0 +1,128 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_AdminLayout";
+}
+
+
+
+<div class="admin-dashboard-page">
+    <section class="admin-welcome">
+        <div class="admin-welcome-copy">
+            <span class="admin-eyebrow"><i class="fas fa-bolt"></i> Güncel mağaza görünümü</span>
+            <h1>Merhaba, @User.Identity?.Name</h1>
+            <p>Mağazanın temel verileri, stok hareketleri ve hızlı yönetim araçları tek bir yerde.</p>
+        </div>
+        <div class="admin-welcome-actions">
+            <a href="/admin/createproduct" class="admin-action admin-action-light"><i class="fas fa-plus"></i> Yeni ürün</a>
+            <a href="/" class="admin-action admin-action-ghost"><i class="fas fa-arrow-up-right-from-square"></i> Mağazayı aç</a>
+        </div>
+    </section>
+
+    <section class="admin-stat-grid" aria-label="Mağaza özeti">
+        <article class="admin-stat-card stat-coral">
+            <div class="admin-stat-top"><span>Ürünler</span><i class="fas fa-box-open"></i></div>
+            <strong>@ViewBag.TotalProducts</strong>
+            <a href="/admin/productlist">Kataloğu yönet <i class="fas fa-arrow-right"></i></a>
+        </article>
+        <article class="admin-stat-card stat-yellow">
+            <div class="admin-stat-top"><span>Kategoriler</span><i class="fas fa-tags"></i></div>
+            <strong>@ViewBag.TotalCategories</strong>
+            <a href="/admin/categorylist">Kategorileri gör <i class="fas fa-arrow-right"></i></a>
+        </article>
+        <article class="admin-stat-card stat-green">
+            <div class="admin-stat-top"><span>Hesaplar</span><i class="fas fa-users"></i></div>
+            <strong>@ViewBag.TotalUsers</strong>
+            <a href="/admin/userlist">Hesapları incele <i class="fas fa-arrow-right"></i></a>
+        </article>
+        <article class="admin-stat-card stat-cream">
+            <div class="admin-stat-top"><span>Yorumlar</span><i class="fas fa-comments"></i></div>
+            <strong>@ViewBag.TotalComments</strong>
+            <a href="/admin/commentlist">Yorumları yönet <i class="fas fa-arrow-right"></i></a>
+        </article>
+    </section>
+
+    <section class="admin-dashboard-grid">
+        <article class="admin-panel admin-chart-panel">
+            <div class="admin-panel-heading">
+                <div>
+                    <span class="admin-panel-kicker">Envanter görünümü</span>
+                    <h2>Stok dağılımı</h2>
+                </div>
+                <span class="admin-panel-badge"><i class="fas fa-chart-column"></i> Canlı veriler</span>
+            </div>
+            <div class="admin-chart-wrap"><canvas id="stockChart"></canvas></div>
+        </article>
+
+        <aside class="admin-side-stack">
+            <article class="admin-panel">
+                <div class="admin-panel-heading compact">
+                    <div><span class="admin-panel-kicker">Dikkat gerekenler</span><h2>Stok uyarıları</h2></div>
+                </div>
+                <div class="admin-stock-alert warning">
+                    <span class="admin-alert-icon"><i class="fas fa-triangle-exclamation"></i></span>
+                    <div><strong>@ViewBag.CriticalStockCount ürün kritik seviyede</strong><small>10 adet ve altında stok</small></div>
+                </div>
+                <div class="admin-stock-alert danger">
+                    <span class="admin-alert-icon"><i class="fas fa-circle-xmark"></i></span>
+                    <div><strong>@ViewBag.OutOfStockCount ürün tükendi</strong><small>Stok adedi sıfır olan ürünler</small></div>
+                </div>
+            </article>
+
+            <article class="admin-panel admin-quick-panel">
+                <div class="admin-panel-heading compact">
+                    <div><span class="admin-panel-kicker">Kısayollar</span><h2>Hızlı işlemler</h2></div>
+                </div>
+                <a href="/admin/createproduct"><span><i class="fas fa-plus"></i></span><div><strong>Yeni ürün ekle</strong><small>Kataloğa yeni bir ürün kaydet</small></div><i class="fas fa-chevron-right"></i></a>
+                <a href="/admin/categorylist"><span><i class="fas fa-layer-group"></i></span><div><strong>Kategorileri düzenle</strong><small>Mağaza yapısını güncelle</small></div><i class="fas fa-chevron-right"></i></a>
+            </article>
+        </aside>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('stockChart').getContext('2d');
+        const stockChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Yeterli Stok', 'Kritik Stok (<=10)', 'Tükenen Ürünler (0)'],
+                datasets: [{
+                    label: 'Ürün Sayısı',
+                    data: [@(ViewBag.TotalProducts - ViewBag.CriticalStockCount - ViewBag.OutOfStockCount), @ViewBag.CriticalStockCount, @ViewBag.OutOfStockCount],
+                    backgroundColor: ['#4f7770', '#efc65f', '#e4644b'],
+                    borderColor: ['#4f7770', '#efc65f', '#e4644b'],
+                    borderWidth: 0,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                    maxBarThickness: 56
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(24, 52, 50, .08)' },
+                        border: { display: false },
+                        ticks: {
+                            stepSize: 1,
+                            color: '#6e7b77'
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        border: { display: false },
+                        ticks: { color: '#536661' }
+                    }
+                }
+            }
+        });
+    </script>
+}

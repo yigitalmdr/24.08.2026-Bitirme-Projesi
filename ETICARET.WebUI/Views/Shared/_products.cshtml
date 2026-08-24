@@ -1,0 +1,68 @@
+@using ETICARET.Entities
+@using ETICARET.Business.Abstract
+@using Microsoft.AspNetCore.Identity
+@using ETICARET.WebUI.Identity
+@inject IFavoriteService FavoriteService
+@inject UserManager<ApplicationUser> UserManager
+@model Product
+
+@{
+    bool isFavorite = false;
+    bool removeOnUnfavorite = Context.Request.Path.StartsWithSegments("/Favorite");
+    if (User.Identity.IsAuthenticated)
+    {
+        var user = await UserManager.GetUserAsync(User);
+        if (user != null)
+        {
+            isFavorite = FavoriteService.GetFavorite(user.Id, Model.Id) != null;
+        }
+    }
+}
+
+<article class="hb-product-card-wrapper position-relative">
+    @if (User.Identity.IsAuthenticated)
+    {
+        <button type="button" class="favorite-btn @(isFavorite ? "is-favorite" : "")"
+                data-favorite-button data-product-id="@Model.Id" data-remove-on-unfavorite="@removeOnUnfavorite.ToString().ToLowerInvariant()" aria-pressed="@isFavorite.ToString().ToLowerInvariant()"
+                title="@(isFavorite ? "Favorilerden çıkar" : "Favorilere ekle")">
+            <i class="@(isFavorite ? "fas fa-heart" : "far fa-heart")"></i>
+        </button>
+    }
+
+    <div class="hb-product-card">
+        <a href="/Shop/Details/@Model.Id" class="hb-product-image-link" aria-label="@Model.Name ürününü incele">
+        <div class="hb-product-image-wrapper">
+        @{
+            var image = Model.Images?.FirstOrDefault(img => img.ProductId == Model.Id);
+        }
+        @if(image != null)
+        {
+            <img src="@ProductImageHelper.GetUrl(image.ImageUrl)" alt="@Model.Name" onerror="this.src='@ProductImageHelper.GetUrl(null)'" />
+        }
+        else
+        {
+            <img src="@ProductImageHelper.GetUrl(null)" alt="@Model.Name" />
+        }
+        </div>
+        </a>
+        <div class="hb-product-content">
+            <span class="hb-product-kicker">Seçkin teknoloji</span>
+            <a href="/Shop/Details/@Model.Id" class="hb-product-title">@Model.Name</a>
+            <div class="hb-product-price">@Model.Price.ToString("C0")</div>
+            @if (User.Identity.IsAuthenticated && !User.IsInRole("admin"))
+            {
+                <form asp-controller="Cart" asp-action="AddToCart" method="POST" class="mt-auto">
+                    <input type="hidden" name="productId" value="@Model.Id" />
+                    <input type="hidden" name="quantity" value="1" />
+                    <button type="submit" class="hb-btn-orange w-100" title="Sepete Ekle">
+                        <i class="fas fa-bag-shopping me-2"></i>Sepete Ekle
+                    </button>
+                </form>
+            }
+            else
+            {
+                <a href="/Shop/Details/@Model.Id" class="hb-btn-outline mt-auto">Ürünü İncele</a>
+            }
+        </div>
+    </div>
+</article>

@@ -1,0 +1,97 @@
+@model ETICARET.WebUI.Models.ProductListModel
+@{
+    ViewData["Title"] = "Ürün Yönetimi";
+    Layout = "_AdminLayout";
+    var products = Model.Products ?? new List<ETICARET.Entities.Product>();
+    var criticalStock = products.Count(item => item.Stock > 0 && item.Stock <= 10);
+    var outOfStock = products.Count(item => item.Stock == 0);
+}
+
+<div class="admin-list-page">
+    <div class="admin-page-heading">
+        <div>
+            <span class="admin-eyebrow"><i class="fas fa-boxes-stacked"></i> Katalog yönetimi</span>
+            <h1>Ürünler</h1>
+            <p>Ürün bilgilerini, fiyatları ve stok durumlarını tek ekrandan takip edin.</p>
+        </div>
+        <a asp-controller="Admin" asp-action="CreateProduct" class="admin-primary-button"><i class="fas fa-plus"></i> Yeni ürün ekle</a>
+    </div>
+
+    <div class="admin-list-summary">
+        <div><span>Toplam ürün</span><strong>@products.Count</strong></div>
+        <div><span>Stokta olan</span><strong>@(products.Count - outOfStock)</strong></div>
+        <div class="summary-warning"><span>Kritik stok</span><strong>@criticalStock</strong></div>
+        <div class="summary-danger"><span>Tükenen</span><strong>@outOfStock</strong></div>
+    </div>
+
+    <div class="admin-table-card">
+        <div class="admin-table-card-head">
+            <div><strong>Ürün envanteri</strong><span>@products.Count kayıt görüntüleniyor</span></div>
+            <span class="admin-table-status"><i></i> Güncel katalog</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table admin-data-table">
+                <thead>
+                    <tr>
+                        <th class="text-center" style="width: 104px;">Görsel</th>
+                        <th>Ürün adı</th>
+                        <th>Fiyat</th>
+                        <th>Stok durumu</th>
+                        <th class="text-end" style="width: 210px;">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (products.Count > 0)
+                    {
+                        foreach (var item in products)
+                        {
+                            <tr>
+                                <td class="text-center">
+                                    <span class="admin-product-image">
+                                        <img src="@ProductImageHelper.GetUrl(item.Images?.FirstOrDefault()?.ImageUrl)" alt="@item.Name" onerror="this.src='@ProductImageHelper.GetUrl(null)'">
+                                    </span>
+                                </td>
+                                <td><div class="admin-product-name"><strong>@item.Name</strong><span>Ürün No: #@item.Id</span></div></td>
+                                <td><strong class="admin-price">@item.Price.ToString("C")</strong></td>
+                                <td>
+                                    @if (item.Stock > 10)
+                                    {
+                                        <span class="admin-stock-pill in-stock"><i></i>@item.Stock adet</span>
+                                    }
+                                    else if (item.Stock > 0)
+                                    {
+                                        <span class="admin-stock-pill low-stock"><i></i>Kritik: @item.Stock adet</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="admin-stock-pill no-stock"><i></i>Tükendi</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <a href="/admin/editproduct/@item.Id" class="admin-row-action edit"><i class="fas fa-pen"></i><span>Düzenle</span></a>
+                                    <form action="/admin/deleteproduct" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="admin-row-action delete" onclick="return confirm('Bu ürünü silmek istediğinize emin misiniz?');"><i class="fas fa-trash-alt"></i><span>Sil</span></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5">
+                                <div class="admin-empty-state">
+                                    <i class="fas fa-box-open"></i>
+                                    <h5>Herhangi bir ürün bulunamadı.</h5>
+                                    <p>Sisteme yeni bir ürün eklemek için sağ üstteki butonu kullanabilirsiniz.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

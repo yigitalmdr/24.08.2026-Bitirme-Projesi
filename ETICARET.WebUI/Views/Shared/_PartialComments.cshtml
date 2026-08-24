@@ -1,0 +1,378 @@
+@using System.Security.Claims
+@using ETICARET.Entities
+
+@model List<Comment>
+
+@{
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var usernames = ViewBag.Usernames as Dictionary<string, string> ?? new Dictionary<string, string>();
+    var adminUsers = ViewBag.AdminUsers as Dictionary<string, bool> ?? new Dictionary<string, bool>();
+    int currentProductId = ViewBag.ProductId ?? 0;
+}
+
+<style>
+    /* Premium Comments Custom Styles */
+    .comments-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .comment-form-card {
+        background: linear-gradient(to right bottom, #ffffff, var(--bg-main));
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .comment-form-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 6px;
+        height: 100%;
+        background-color: var(--hb-orange);
+    }
+    
+    .rating-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ff6000%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+        background-repeat: no-repeat, repeat;
+        background-position: right .7em top 50%, 0 0;
+        background-size: .65em auto, 100%;
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 12px 40px 12px 15px;
+        font-weight: 600;
+        color: var(--text-dark);
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+    
+    .rating-select:focus {
+        border-color: var(--hb-orange);
+        outline: none;
+        box-shadow: 0 0 0 3px var(--hb-orange-light);
+    }
+    
+    .comment-textarea {
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 15px;
+        font-size: 1rem;
+        transition: all 0.2s;
+        resize: vertical;
+        min-height: 120px;
+    }
+    
+    .comment-textarea:focus {
+        border-color: var(--hb-orange);
+        outline: none;
+        box-shadow: 0 0 0 3px var(--hb-orange-light);
+    }
+    
+    .submit-comment-btn {
+        background-color: var(--hb-orange);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        padding: 12px 30px;
+        font-weight: 700;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .submit-comment-btn:hover {
+        background-color: var(--hb-orange-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(255, 96, 0, 0.2);
+    }
+    
+    .review-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .review-card {
+        background: #fff;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        transition: all 0.2s ease;
+    }
+    
+    .review-card:hover {
+        border-color: #dcdcdc;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .review-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--hb-orange), #ff8c42);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        font-weight: 600;
+        box-shadow: 0 4px 10px rgba(255, 96, 0, 0.2);
+    }
+    
+    .review-author {
+        font-weight: 700;
+        color: var(--text-dark);
+        font-size: 1.05rem;
+    }
+    
+    .review-date {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    .review-stars {
+        color: #ffc107;
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+    }
+    
+    .review-text {
+        color: var(--text-primary);
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+    
+    .delete-review-btn {
+        background: transparent;
+        border: none;
+        color: #dc3545;
+        opacity: 0.6;
+        transition: all 0.2s;
+        padding: 8px;
+        border-radius: var(--radius-sm);
+    }
+    
+    .delete-review-btn:hover {
+        opacity: 1;
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+    
+    .empty-reviews {
+        background-color: var(--bg-main);
+        border-radius: var(--radius-lg);
+        padding: 3rem 2rem;
+        text-align: center;
+        border: 2px dashed var(--border-color);
+    }
+    
+    .interactive-stars {
+        display: inline-flex;
+        gap: 4px;
+        font-size: 2rem;
+        color: #ffc107;
+        cursor: pointer;
+        user-select: none;
+    }
+</style>
+
+<div class="comments-wrapper">
+    
+    @* Add Comment Form *@
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div class="comment-form-card">
+            <h4 class="mb-4 fw-bold text-dark"><i class="fas fa-pen-nib me-2 text-warning"></i>Değerlendirme Yaz</h4>
+            <form asp-controller="Comment" asp-action="Create" method="post">
+                <input type="hidden" name="ProductId" value="@currentProductId" />
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-secondary d-block">Puanınız</label>
+                        <div class="interactive-stars" id="interactive-stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <input type="hidden" name="Rating" id="RatingInput" value="5" />
+                        <div class="text-muted mt-1 small" id="rating-text">5.0 Puan</div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-secondary">Yorumunuz</label>
+                    <textarea name="Text" class="form-control comment-textarea" placeholder="Ürün hakkında ne düşünüyorsunuz? Diğer kullanıcılara yardımcı olacak deneyimlerinizi paylaşın..." required></textarea>
+                </div>
+                
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="submit-comment-btn">
+                        Yorumu Gönder <i class="fas fa-paper-plane ms-1"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info border-info bg-white shadow-sm rounded-3 mb-4 d-flex align-items-center">
+            <i class="fas fa-info-circle fs-4 me-3 text-info"></i>
+            <div>
+                Yorum yapabilmek için lütfen <a href="/Account/Login" class="alert-link fw-bold">giriş yapın</a>.
+            </div>
+        </div>
+    }
+
+    @* Reviews List *@
+    <div class="mt-2">
+        <h4 class="mb-4 fw-bold text-dark d-flex align-items-center">
+            <i class="fas fa-comments me-2 text-secondary"></i>
+            Müşteri Yorumları 
+            <span class="badge bg-light text-dark ms-2 border" style="font-size: 1rem;">@(Model?.Count ?? 0)</span>
+        </h4>
+
+        @if (Model != null && Model.Count > 0)
+        {
+            <div class="review-list">
+                @foreach (var comment in Model.OrderByDescending(c => c.CreateOn))
+                {
+                    var isCommenterAdmin = adminUsers.ContainsKey(comment.UserId) && adminUsers[comment.UserId];
+                    var authorName = isCommenterAdmin ? "Admin" : (usernames.ContainsKey(comment.UserId) ? usernames[comment.UserId] : "Kullanıcı");
+                    var initial = !string.IsNullOrEmpty(authorName) ? authorName.Substring(0, 1).ToUpper() : "K";
+                    
+                    <div class="review-card">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="review-avatar @(isCommenterAdmin ? "bg-danger" : "")">
+                                    @initial
+                                </div>
+                                <div>
+                                    <div class="review-author d-flex align-items-center gap-2">
+                                        @authorName
+                                        @if(isCommenterAdmin)
+                                        {
+                                            <span class="badge bg-danger" style="font-size: 0.7rem; padding: 4px 6px;">Admin</span>
+                                        }
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2 mt-1">
+                                        <div class="review-stars">
+                                            @for(int i = 1; i <= 5; i++) {
+                                                if (i <= comment.Rating) { <i class="fas fa-star"></i> }
+                                                else if (i - 0.5 <= comment.Rating) { <i class="fas fa-star-half-alt"></i> }
+                                                else { <i class="far fa-star text-muted" style="opacity: 0.3;"></i> }
+                                            }
+                                        </div>
+                                        <span class="review-date">
+                                            <i class="far fa-clock me-1"></i>
+                                            @comment.CreateOn.ToString("dd MMMM yyyy")
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            @if (User.Identity.IsAuthenticated && (userId == comment.UserId || User.IsInRole("admin")))
+                            {
+                                <form asp-controller="Comment" asp-action="Delete" method="post" class="m-0">
+                                    <input type="hidden" name="id" value="@comment.Id" />
+                                    <input type="hidden" name="productId" value="@currentProductId" />
+                                    <button type="submit" class="delete-review-btn" title="Yorumu Sil" onclick="return confirm('Bu yorumu silmek istediğinize emin misiniz?');">
+                                        <i class="fas fa-trash-alt fs-5"></i>
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                        <div class="review-text ps-1">
+                            @comment.Text
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-reviews">
+                <i class="far fa-comment-dots fs-1 text-muted mb-3 d-block"></i>
+                <h5 class="fw-bold text-dark mb-2">Henüz yorum yapılmamış</h5>
+                <p class="text-secondary mb-0">Bu ürün için ilk değerlendirmeyi siz yapın!</p>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const starContainer = document.getElementById('interactive-stars');
+        if (!starContainer) return;
+        
+        const stars = Array.from(starContainer.children);
+        const input = document.getElementById('RatingInput');
+        const ratingText = document.getElementById('rating-text');
+        let currentRating = 5; // default
+
+        starContainer.addEventListener('mousemove', function(e) {
+            const rect = starContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const width = rect.width;
+            
+            // Calculate rating based on mouse position relative to container width
+            let rating = (x / width) * 5;
+            rating = Math.ceil(rating * 2) / 2; // round to nearest 0.5
+            
+            if(rating < 0.5) rating = 0.5;
+            if(rating > 5) rating = 5;
+            
+            updateStars(rating);
+        });
+
+        starContainer.addEventListener('mouseleave', function() {
+            updateStars(currentRating);
+        });
+
+        starContainer.addEventListener('click', function(e) {
+            const rect = starContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const width = rect.width;
+            
+            let rating = (x / width) * 5;
+            rating = Math.ceil(rating * 2) / 2;
+            
+            if(rating < 0.5) rating = 0.5;
+            if(rating > 5) rating = 5;
+            
+            currentRating = rating;
+            input.value = currentRating;
+            updateStars(currentRating);
+        });
+
+        function updateStars(rating) {
+            stars.forEach((star, index) => {
+                const starVal = index + 1;
+                star.className = 'far fa-star text-muted'; 
+                star.style.opacity = '0.3';
+                
+                if (rating >= starVal) {
+                    star.className = 'fas fa-star';
+                    star.style.opacity = '1';
+                } else if (rating >= starVal - 0.5) {
+                    star.className = 'fas fa-star-half-alt';
+                    star.style.opacity = '1';
+                }
+            });
+            if(ratingText) {
+                ratingText.textContent = rating.toFixed(1) + " Puan";
+            }
+        }
+        
+        // initialize
+        updateStars(currentRating);
+    });
+</script>

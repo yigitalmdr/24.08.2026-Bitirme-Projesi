@@ -1,0 +1,476 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    --admin-primary: #0f172a;
+    --admin-secondary: #1e293b;
+    --admin-accent: #ff6000;
+    --admin-light: #f4f7fe;
+    --admin-border: #e2e8f0;
+}
+
+body {
+    background-color: var(--admin-light);
+    font-family: 'Outfit', sans-serif;
+    overflow-x: hidden;
+    margin: 0;
+    color: #334155;
+}
+
+/* ==========================================================================
+   LAYOUT
+   ========================================================================== */
+.admin-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+.admin-sidebar {
+    width: 280px;
+    background: linear-gradient(180deg, var(--admin-primary) 0%, var(--admin-secondary) 100%);
+    box-shadow: 4px 0 20px rgba(0,0,0,0.05);
+    color: #fff;
+    flex-shrink: 0;
+    transition: all 0.3s;
+    position: fixed;
+    height: 100vh;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-sidebar-header {
+    padding: 30px 20px;
+    background-color: rgba(0,0,0,0.15);
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.admin-sidebar-header h3 {
+    margin: 0;
+    color: var(--admin-accent);
+    font-weight: 800;
+    font-size: 1.75rem;
+    letter-spacing: -0.5px;
+}
+
+.admin-sidebar-header h3 span {
+    color: #fff;
+}
+
+.admin-nav {
+    padding: 20px 0;
+    list-style: none;
+    margin: 0;
+    flex-grow: 1;
+}
+
+.admin-nav-item {
+    margin-bottom: 5px;
+}
+
+.admin-nav-link {
+    display: flex;
+    align-items: center;
+    padding: 14px 25px;
+    color: #94a3b8;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+.admin-nav-link i {
+    margin-right: 15px;
+    width: 22px;
+    text-align: center;
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.admin-nav-link:hover i {
+    transform: scale(1.15) rotate(5deg);
+}
+
+.admin-nav-link:hover {
+    color: #fff;
+    background-color: rgba(255,255,255,0.03);
+    border-left: 4px solid rgba(255, 96, 0, 0.5);
+    padding-left: 30px;
+}
+
+.admin-nav-link.active {
+    background: linear-gradient(90deg, rgba(255,96,0,0.1) 0%, transparent 100%);
+    color: #fff;
+    border-left: 4px solid var(--admin-accent);
+}
+
+.admin-main {
+    flex-grow: 1;
+    margin-left: 280px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.admin-topbar {
+    height: 75px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 35px;
+    z-index: 90;
+    position: sticky;
+    top: 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.admin-content {
+    padding: 35px;
+    flex-grow: 1;
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.topbar-user {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 30px;
+    transition: background 0.2s;
+}
+
+.topbar-user:hover {
+    background: rgba(0,0,0,0.03);
+}
+
+.topbar-user .avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--admin-accent), #ff8a3d);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(255, 96, 0, 0.2);
+}
+
+/* ==========================================================================
+   CARDS & CONTAINERS
+   ========================================================================== */
+.hb-admin-container {
+    margin-top: 0 !important;
+    max-width: 100%;
+}
+
+.hb-admin-card {
+    border: 1px solid rgba(226, 232, 240, 0.6);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+    border-radius: 16px !important;
+    background: #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 35px;
+}
+
+.hb-admin-card:hover {
+    box-shadow: 0 15px 35px rgba(0,0,0,0.04);
+    transform: translateY(-2px);
+}
+
+.hb-admin-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #484848;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+/* ==========================================================================
+   TABLES
+   ========================================================================== */
+.hb-table th {
+    background-color: #f8fafc;
+    border-bottom: 2px solid var(--admin-border);
+    color: var(--admin-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    padding: 18px 20px;
+}
+
+.hb-table td {
+    padding: 18px 20px;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+    color: #475569;
+}
+
+.hb-table tr:hover td {
+    background-color: #fcfcfd;
+}
+
+/* ==========================================================================
+   FORMS & BUTTONS
+   ========================================================================== */
+.hb-form-label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #484848;
+    margin-bottom: 8px;
+}
+
+.hb-form-control {
+    border-radius: 6px;
+    border: 1px solid #d1d1d1;
+    padding: 12px 15px;
+    font-size: 15px;
+}
+
+.hb-form-control:focus {
+    border-color: var(--admin-accent);
+    box-shadow: 0 0 0 0.2rem rgba(255, 96, 0, 0.15);
+    outline: none;
+}
+
+.hb-btn-primary {
+    background-color: var(--admin-accent);
+    color: #fff;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 12px 25px;
+    border: none;
+    transition: background-color 0.2s;
+}
+
+.hb-btn-primary:hover {
+    background-color: #e55600;
+    color: #fff;
+}
+
+.hb-btn-outline {
+    background-color: #fff;
+    color: #666;
+    border: 1px solid #d1d1d1;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 12px 25px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.hb-btn-outline:hover {
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+/* ==========================================================================
+   DASHBOARD SPECIFIC (From Index.cshtml)
+   ========================================================================== */
+.dashboard-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+    border: 1px solid rgba(226, 232, 240, 0.6);
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--admin-accent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.04);
+}
+
+.dashboard-card:hover::before {
+    opacity: 1;
+}
+
+.card-icon {
+    width: 65px;
+    height: 65px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-right: 20px;
+    transition: transform 0.3s ease;
+}
+
+.dashboard-card:hover .card-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.icon-primary { background: linear-gradient(135deg, rgba(15, 23, 42, 0.1), rgba(30, 41, 59, 0.1)); color: var(--admin-primary); }
+.icon-accent { background: linear-gradient(135deg, rgba(255, 96, 0, 0.1), rgba(255, 138, 61, 0.1)); color: var(--admin-accent); }
+.icon-success { background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(72, 199, 116, 0.1)); color: #28a745; }
+.icon-info { background: linear-gradient(135deg, rgba(23, 162, 184, 0.1), rgba(54, 186, 209, 0.1)); color: #17a2b8; }
+
+.card-info h3 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin: 0 0 2px 0;
+    color: var(--admin-primary);
+    letter-spacing: -0.5px;
+}
+
+.card-info p {
+    margin: 0;
+    color: #64748b;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.welcome-banner {
+    background: linear-gradient(135deg, var(--admin-primary), var(--admin-secondary));
+    color: #fff;
+    padding: 40px;
+    border-radius: 20px;
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.2);
+}
+
+.welcome-banner::after {
+    content: '\f108';
+    font-family: 'Font Awesome 6 Free', 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    right: 20px;
+    bottom: -20px;
+    font-size: 12rem;
+    opacity: 0.05;
+    transform: rotate(-15deg);
+    transition: transform 0.5s ease;
+}
+
+.welcome-banner:hover::after {
+    transform: rotate(-5deg) scale(1.05);
+}
+
+/* ==========================================================================
+   USER & LIST SPECIFIC (From UserList.cshtml)
+   ========================================================================== */
+.user-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background-color: rgba(255, 96, 0, 0.1);
+    color: var(--admin-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+/* ==========================================================================
+   LISTS SPECIFIC (From ProductList, CategoryList, etc.)
+   ========================================================================== */
+.hb-admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+.hb-btn-add {
+    background-color: var(--admin-accent);
+    color: #fff;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 10px 20px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.2s;
+}
+.hb-btn-add:hover {
+    background-color: #e55600;
+    color: #fff;
+}
+.hb-btn-edit {
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    padding: 6px 15px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+.hb-btn-edit:hover {
+    background-color: #0069d9;
+    color: #fff;
+}
+.hb-btn-delete {
+    color: #fff;
+    background-color: #dc3545;
+    border: none;
+    padding: 6px 15px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+.hb-btn-delete:hover {
+    background-color: #c82333;
+    color: #fff;
+}
+.hb-empty-state {
+    padding: 40px;
+    text-align: center;
+    color: #777;
+}
+
+/* ==========================================================================
+   COMMENT LIST SPECIFIC
+   ========================================================================== */
+.comment-text {
+    font-size: 0.95rem;
+    color: #555;
+    font-style: italic;
+    background: #fdfdfd;
+    padding: 10px 15px;
+    border-radius: 6px;
+    border-left: 3px solid var(--admin-accent);
+}
+.btn-delete-comment {
+    color: #fff;
+    background-color: #dc3545;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    transition: 0.2s;
+}
+.btn-delete-comment:hover {
+    background-color: #c82333;
+}

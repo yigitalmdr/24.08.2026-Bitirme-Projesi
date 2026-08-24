@@ -1,0 +1,250 @@
+@model ETICARET.WebUI.Models.CartModel
+@{
+    ViewData["Title"] = "Sepetim";
+}
+
+<style>
+    body {
+        background-color: #f5f5f5;
+    }
+    .hb-cart-container {
+        margin-top: 30px;
+        margin-bottom: 60px;
+    }
+    .hb-cart-card {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid #eaeaea;
+        padding: 25px;
+    }
+    .hb-cart-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #484848;
+        margin-bottom: 25px;
+    }
+    .hb-cart-item {
+        border-bottom: 1px solid #eaeaea;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+    }
+    .hb-cart-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+        margin-bottom: 0;
+    }
+    .hb-item-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #484848;
+        text-decoration: none;
+    }
+    .hb-item-name:hover {
+        color: var(--hb-orange, #ff6000);
+    }
+    .hb-item-qty {
+        font-size: 0.9rem;
+        color: #777;
+    }
+    .hb-item-price {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--hb-orange, #ff6000);
+    }
+    .hb-btn-remove {
+        color: #999;
+        background: none;
+        border: none;
+        transition: color 0.2s;
+    }
+    .hb-btn-remove:hover {
+        color: #dc3545;
+    }
+    .hb-summary-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #484848;
+        margin-bottom: 20px;
+    }
+    .hb-summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        color: #484848;
+        font-size: 15px;
+    }
+    .hb-summary-total {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #eaeaea;
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: var(--hb-orange, #ff6000);
+    }
+    .hb-btn-checkout {
+        background-color: var(--hb-orange, #ff6000);
+        color: #fff;
+        height: 50px;
+        font-weight: 700;
+        font-size: 16px;
+        border-radius: 8px;
+        border: none;
+        width: 100%;
+        transition: background-color 0.2s;
+        margin-top: 20px;
+    }
+    .hb-btn-checkout:hover {
+        background-color: #e55600;
+        color: #fff;
+    }
+    .hb-btn-shopping {
+        background-color: #fff;
+        color: var(--hb-orange, #ff6000);
+        border: 1px solid var(--hb-orange, #ff6000);
+        height: 45px;
+        font-weight: 600;
+        font-size: 15px;
+        border-radius: 6px;
+        padding: 0 20px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    .hb-btn-shopping:hover {
+        background-color: var(--hb-orange, #ff6000);
+        color: #fff;
+    }
+</style>
+
+<div class="container hb-cart-container">
+    <div class="row">
+        <div class="col-12">
+            <div class="hb-cart-card">
+                <h2 class="hb-cart-title">Sepetim (@Model.CartItems.Count Ürün)</h2>
+                <div class="row">
+                    @if (Model.CartItems.Count == 0)
+                    {
+                        <div class="col-12 text-center py-5">
+                            <div class="mb-4">
+                                <i class="fas fa-shopping-basket" style="font-size: 80px; color: #e0e0e0;"></i>
+                            </div>
+                            <h4 class="text-muted fw-bold mb-3">Sepetiniz şu an boş.</h4>
+                            <p class="text-secondary mb-4">Sepetinizde ürün bulunmamaktadır. Harika ürünlerimizi incelemek için alışverişe başlayabilirsiniz.</p>
+                            <a href="/products" class="btn btn-primary px-4 py-2" style="background-color: var(--hb-orange); border-color: var(--hb-orange); border-radius: 8px; font-weight: 600;">
+                                Alışverişe Başla
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-lg-8">
+                            <div class="hb-cart-items-wrapper">
+                                @foreach (var item in Model.CartItems)
+                                {
+                                    <div class="hb-cart-item row align-items-center">
+                                        <div class="col-3 col-md-2 text-center">
+                                            <a href="/Shop/Details/@item.ProductId">
+                                                <img src="@ProductImageHelper.GetUrl(item.ImageUrl)" class="img-fluid rounded" style="max-height: 80px; object-fit: contain;" alt="@item.Name" onerror="this.src='@ProductImageHelper.GetUrl(null)'">
+                                            </a>
+                                        </div>
+                                        <div class="col-9 col-md-5">
+                                            <a href="/Shop/Details/@item.ProductId" class="hb-item-name">@item.Name</a>
+                                            <div class="hb-item-qty mt-1">Adet: @item.Quantity</div>
+                                        </div>
+                                        <div class="col-6 col-md-3 mt-3 mt-md-0 text-md-center">
+                                            <div class="hb-item-price">@item.Price.ToString("c")</div>
+                                        </div>
+                                        <div class="col-6 col-md-2 mt-3 mt-md-0 text-end text-md-center">
+                                            <form asp-controller="Cart" asp-action="DeleteFromCart" method="post">
+                                                <input type="hidden" name="productId" value="@item.ProductId" />
+                                                <button type="submit" class="hb-btn-remove" title="Sepetten Sil">
+                                                    <i class="fas fa-trash-alt fs-5"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Sipariş Özeti -->
+                        <div class="col-lg-4">
+                            <div class="hb-cart-card position-sticky" style="top: 20px;">
+                                <h4 class="hb-summary-title">Sipariş Özeti</h4>
+
+                                @{
+                                    decimal totalPrice = Model.TotalPrice();
+                                    decimal discountAmount = 0;
+                                    string discountCode = TempData["DiscountCode"] as string;
+                                    if (!string.IsNullOrEmpty(discountCode) && discountCode.ToUpper() == "UCUNCUBINYIL")
+                                    {
+                                        if (totalPrice <= 1000)
+                                        {
+                                            discountAmount = totalPrice * 0.2m;
+                                        }
+                                        else
+                                        {
+                                            // 1000 TL aşılırsa indirim uygulanmaz
+                                            discountAmount = 0;
+                                        }
+                                    }
+                                    decimal finalPrice = totalPrice - discountAmount;
+                                }
+
+                                <div class="hb-summary-row">
+                                    <span>Ürün Toplamı</span>
+                                    <span>@totalPrice.ToString("c")</span>
+                                </div>
+                                <div class="hb-summary-row">
+                                    <span>Kargo Ücreti</span>
+                                    <span class="text-success fw-bold">Ücretsiz</span>
+                                </div>
+                                
+                                @if (discountAmount > 0)
+                                {
+                                    <div class="hb-summary-row text-success fw-bold">
+                                        <span>İndirim (%20)</span>
+                                        <span>-@discountAmount.ToString("c")</span>
+                                    </div>
+                                }
+                                
+                                <div class="mt-3 mb-2 pb-3 border-bottom border-top pt-3">
+                                    <label class="form-label" style="font-size: 0.9rem; font-weight: 600; color: #484848;">İndirim Kodu</label>
+                                    <form asp-controller="Cart" asp-action="ApplyDiscount" method="post" class="input-group">
+                                        <input type="text" name="discountCode" class="form-control" placeholder="Kupon Kodunuz" value="@discountCode" style="font-size: 0.9rem; border-color: #eaeaea; height: 42px;">
+                                        <button type="submit" class="btn btn-outline-secondary" style="border-color: #eaeaea; color: var(--hb-orange); font-weight: 600;">Uygula</button>
+                                    </form>
+                                    <div class="text-muted mt-1" style="font-size: 0.75rem;"><i class="fas fa-info-circle"></i> Güncel kod: <strong>UCUNCUBINYIL</strong></div>
+                                    @if (TempData["DiscountMessage"] != null)
+                                    {
+                                        <div class="text-success small mt-1"><i class="fas fa-check-circle"></i> @TempData["DiscountMessage"]</div>
+                                    }
+                                    @if (TempData["DiscountError"] != null)
+                                    {
+                                        <div class="text-danger small mt-1"><i class="fas fa-exclamation-circle"></i> @TempData["DiscountError"]</div>
+                                    }
+                                </div>
+                                
+                                <div class="hb-summary-total">
+                                    <span>Ödenecek Tutar</span>
+                                    <span>@finalPrice.ToString("c")</span>
+                                </div>
+                                
+                                <a href="/Cart/Checkout" class="hb-btn-checkout text-center text-decoration-none d-flex align-items-center justify-content-center">Alışverişi Tamamla</a>
+                                
+                                <div class="text-center mt-3">
+                                    <i class="fas fa-lock text-success me-1"></i> <span style="font-size: 13px; color: #777;">Güvenli Alışveriş</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,77 @@
+@model List<ETICARET.WebUI.Models.CommentViewModel>
+@{
+    ViewData["Title"] = "Yorum Yönetimi";
+    Layout = "_AdminLayout";
+}
+
+
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-dark m-0">Ürün Yorumları</h3>
+</div>
+
+<div class="hb-admin-card bg-white" style="border-radius:12px; overflow:hidden;">
+    <div class="table-responsive">
+        <table class="table hb-table m-0">
+            <thead>
+                <tr>
+                    <th style="width: 150px;">Tarih</th>
+                    <th style="width: 200px;">Kullanıcı</th>
+                    <th style="width: 200px;">Ürün</th>
+                    <th style="width: 100px;">Puan</th>
+                    <th>Yorum İçeriği</th>
+                    <th style="width: 100px;" class="text-center">İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if(Model != null && Model.Count > 0)
+                {
+                    foreach (var comment in Model)
+                    {
+                        <tr>
+                            <td class="text-muted small">@comment.CreateOn.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td class="fw-bold">@comment.UserName</td>
+                            <td>
+                                <a href="/Shop/Details/@comment.ProductId" target="_blank" class="text-decoration-none fw-bold" style="color:var(--admin-primary)">
+                                    <i class="fas fa-external-link-alt small text-muted me-1"></i> @comment.ProductName
+                                </a>
+                            </td>
+                            <td>
+                                <div class="text-warning small">
+                                    @for(int i = 1; i <= 5; i++) {
+                                        if (i <= comment.Rating) { <i class="fas fa-star"></i> }
+                                        else if (i - 0.5 <= comment.Rating) { <i class="fas fa-star-half-alt"></i> }
+                                        else { <i class="far fa-star"></i> }
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <div class="comment-text">"@comment.Text"</div>
+                            </td>
+                            <td class="text-center">
+                                <form asp-controller="Admin" asp-action="DeleteComment" method="post">
+                                    <input type="hidden" name="id" value="@comment.Id" />
+                                    <button type="submit" class="btn-delete-comment" onclick="return confirm('Bu yorumu silmek istediğinize emin misiniz?');">
+                                        <i class="fas fa-trash-alt"></i> Sil
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5">
+                            <div class="p-5 text-center text-muted">
+                                <i class="fas fa-comment-slash mb-3" style="font-size: 3rem; color: #ccc;"></i>
+                                <h5>Hiç yorum bulunamadı.</h5>
+                                <p>Henüz ürünlerinize yapılmış bir yorum yok.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

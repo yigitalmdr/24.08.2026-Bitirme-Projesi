@@ -1,0 +1,43 @@
+@model ProductListModel
+@{
+    ViewData["Title"] = "Anasayfa";
+}
+
+<section class="tb-hero-grid">
+    <div class="tb-hero-slider"><partial name="_slider" /></div>
+    <aside class="tb-hero-panel">
+        <span class="tb-eyebrow">TEKNOLOJİ SEÇKİSİ</span>
+        <h1>Daha az ara.<br />Doğru olanı bul.</h1>
+        <p>Günlük hayatı gerçekten kolaylaştıran teknolojileri sizin için bir araya getiriyoruz.</p>
+        <a href="/products/all" class="tb-hero-cta">Tüm Ürünleri Gör <i class="fas fa-arrow-right"></i></a>
+        <div class="tb-hero-metric"><strong>400+</strong><span>özenle seçilmiş ürün</span></div>
+    </aside>
+</section>
+
+<section class="tb-benefit-grid" aria-label="Alışveriş avantajları">
+    <div><i class="fas fa-truck-fast"></i><span><strong>Hızlı teslimat</strong><small>Siparişin hızla yola çıkar</small></span></div>
+    <div><i class="fas fa-rotate-left"></i><span><strong>Kolay iade</strong><small>Sade ve şeffaf süreç</small></span></div>
+    <div><i class="fas fa-shield-halved"></i><span><strong>Güvenli ödeme</strong><small>Korunan ödeme adımları</small></span></div>
+    <div><i class="fas fa-headset"></i><span><strong>Uzman destek</strong><small>İhtiyacında yanındayız</small></span></div>
+</section>
+
+<section class="tb-product-section">
+    <div class="tb-section-heading">
+        <div><span class="tb-eyebrow">BU HAFTANIN SEÇKİSİ</span><h2>Öne çıkan teknolojiler</h2></div>
+        <a href="/products/all">Tümünü Gör <i class="fas fa-arrow-right"></i></a>
+    </div>
+
+    @if (Model.Products != null && Model.Products.Count > 0)
+    {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-5 g-3 g-xl-4">
+            @foreach (Product product in Model.Products)
+            {
+                <div class="col"><partial name="_products" for="@product" /></div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="tb-empty-state"><i class="fas fa-box-open"></i><h3>Ürün bulunamadı</h3><p>Yeni ürünler çok yakında burada olacak.</p></div>
+    }
+</section>

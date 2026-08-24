@@ -1,0 +1,19 @@
+@model ResultModel
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        Swal.fire({
+            title: '@Html.Raw(Model.Title)',
+            text: '@Html.Raw(Model.Message)',
+            icon: '@(Model.Css == "danger" ? "error" : Model.Css == "success" ? "success" : "info")',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 4000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+    });
+</script>

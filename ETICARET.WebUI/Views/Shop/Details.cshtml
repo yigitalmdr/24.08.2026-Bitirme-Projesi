@@ -1,0 +1,447 @@
+@model ProductDetailsModel
+
+@{
+    ViewData["title"] = Model.Product.Name;
+}
+
+<style>
+    /* Premium Product Details Custom Styles */
+    .product-gallery {
+        position: sticky;
+        top: 20px;
+    }
+    
+    .zoom-container {
+        overflow: hidden;
+        position: relative;
+        cursor: zoom-in;
+        border-radius: var(--radius-lg);
+        background-color: #fff;
+        box-shadow: var(--shadow-sm);
+        transition: box-shadow 0.3s ease;
+        border: 1px solid var(--border-color);
+        height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .zoom-container:hover {
+        box-shadow: var(--shadow-md);
+        border-color: var(--hb-orange-light);
+    }
+    
+    .zoom-container img {
+        transition: transform 0.2s ease-out;
+        width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    
+    .zoom-container:hover img {
+        transform: scale(1.8);
+    }
+    
+    .thumb-gallery {
+        display: flex;
+        gap: 12px;
+        margin-top: 16px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+    }
+    
+    .thumb-gallery::-webkit-scrollbar {
+        height: 6px;
+    }
+    
+    .thumb-gallery::-webkit-scrollbar-thumb {
+        background-color: var(--border-color);
+        border-radius: 10px;
+    }
+    
+    .thumb-image {
+        width: 65px;
+        height: 65px;
+        object-fit: cover;
+        border-radius: var(--radius-md);
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background-color: #fff;
+        flex-shrink: 0;
+    }
+    
+    .thumb-image:hover, .thumb-image.active {
+        border-color: var(--hb-orange);
+        box-shadow: 0 4px 12px rgba(255, 96, 0, 0.15);
+        transform: translateY(-2px);
+    }
+    
+    .product-info-card {
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border-color);
+        height: 100%;
+    }
+    
+    .product-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        color: var(--text-dark);
+        line-height: 1.2;
+    }
+    
+    .product-rating {
+        display: inline-flex;
+        align-items: center;
+        background-color: var(--bg-main);
+        padding: 6px 16px;
+        border-radius: var(--radius-pill);
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        text-decoration: none;
+    }
+    
+    .product-rating:hover {
+        background-color: #ebebeb;
+    }
+    
+    .product-category-badge {
+        display: inline-flex;
+        align-items: center;
+        background: linear-gradient(135deg, var(--hb-orange-light) 0%, #fff 100%);
+        color: var(--hb-orange);
+        border: 1px solid rgba(255, 96, 0, 0.2);
+        padding: 6px 16px;
+        border-radius: var(--radius-pill);
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: transform 0.2s ease;
+    }
+    
+    .product-category-badge:hover {
+        transform: translateY(-2px);
+    }
+    
+    .price-box {
+        background: linear-gradient(to right, #ffffff, var(--bg-main));
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        border-left: 4px solid var(--hb-orange);
+        margin-top: 2rem;
+    }
+    
+    .add-to-cart-btn {
+        background-color: var(--hb-orange);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        padding: 10px 20px;
+        font-size: 1rem;
+        font-weight: 700;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        box-shadow: 0 4px 15px rgba(255, 96, 0, 0.2);
+    }
+    
+    .add-to-cart-btn:hover {
+        background-color: var(--hb-orange-hover);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(255, 96, 0, 0.3);
+    }
+    
+    .add-to-cart-btn:active {
+        transform: translateY(1px);
+    }
+    
+    /* Tabs Redesign */
+    .nav-tabs-premium {
+        border-bottom: 2px solid var(--border-color);
+        gap: 20px;
+        padding: 0 20px;
+    }
+    
+    .nav-tabs-premium .nav-item .nav-link {
+        border: none;
+        background: transparent;
+        color: var(--text-secondary);
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 12px 5px;
+        margin-bottom: -2px;
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s ease;
+    }
+    
+    .nav-tabs-premium .nav-item .nav-link:hover {
+        color: var(--hb-orange);
+    }
+    
+    .nav-tabs-premium .nav-item .nav-link.active {
+        color: var(--hb-orange);
+        border-bottom: 3px solid var(--hb-orange);
+    }
+    
+    .tab-content-premium {
+        background: var(--bg-card);
+        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border-color);
+        border-top: none;
+    }
+    
+    .similar-products-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        position: relative;
+        padding-bottom: 15px;
+        margin-bottom: 30px;
+    }
+    
+    .similar-products-title::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background-color: var(--hb-orange);
+        border-radius: 2px;
+    }
+</style>
+
+<div class="container py-4">
+    <div class="row g-5">
+        
+        @* Left Column - Premium Gallery *@
+        <div class="col-lg-5">
+            <div class="product-gallery">
+                @{
+                    var image = Model.Product.Images.Find(img => img.ProductId == Model.Product.Id);
+                }
+
+                @* Main Image *@
+                <div class="zoom-container" id="main-zoom-container">
+                    @if (image != null)
+                    {
+                        <img src="@ProductImageHelper.GetUrl(image.ImageUrl)" class="img-fluid top-image" id="image-box" alt="@Model.Product.Name" onerror="this.src='@ProductImageHelper.GetUrl(null)'" />
+                    }
+                    else
+                    {
+                        <img src="@ProductImageHelper.GetUrl(null)" class="img-fluid top-image" id="image-box" alt="Görsel bulunamadı" />
+                    }
+                </div>
+
+                @* Thumbnails *@
+                @if (Model.Product.Images.Count > 1)
+                {
+                    <div class="thumb-gallery">
+                        @foreach (var img in Model.Product.Images)
+                        {
+                            <img src="@ProductImageHelper.GetUrl(img.ImageUrl)"
+                                 class="thumb-image @(img == image ? "active" : "")"
+                                 onclick="changeImage(this)"
+                                 alt="@Model.Product.Name küçük görseli"
+                                 onerror="this.src='@ProductImageHelper.GetUrl(null)'" />
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        @* Right Column - Product Information *@
+        <div class="col-lg-7">
+            <div class="product-info-card d-flex flex-column">
+                
+                @* Categories *@
+                <div class="mb-3 d-flex flex-wrap gap-2">
+                    @foreach (var category in Model.Categories)
+                    {
+                        <a href="/products/@category.Name.ToLower()" class="product-category-badge text-decoration-none">
+                            <i class="fas fa-tag me-2"></i> @category.Name
+                        </a>
+                    }
+                </div>
+
+                @* Title *@
+                <h1 class="product-title mb-3">@Model.Product.Name</h1>
+                
+                @* Rating & Comments Link *@
+                @{
+                    var avgRating = Model.Comments != null && Model.Comments.Any() ? Math.Round(Model.Comments.Average(c => c.Rating), 1) : 0;
+                    var totalComments = Model.Comments != null ? Model.Comments.Count : 0;
+                }
+                <div class="mb-4">
+                    <a href="#reviews-section" class="product-rating" onclick="document.getElementById('reviews-tab').click();">
+                        <div class="me-2 text-warning fs-5">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                if (i <= Math.Round((double)avgRating))
+                                {
+                                    <i class="fas fa-star"></i>
+                                }
+                                else
+                                {
+                                    <i class="far fa-star text-muted"></i>
+                                }
+                            }
+                        </div>
+                        <span class="fw-bold text-dark me-1">@avgRating</span>
+                        <span class="text-muted">(@totalComments değerlendirme)</span>
+                    </a>
+                </div>
+                
+                <hr class="text-muted opacity-25" />
+
+                @* Price & Cart Box *@
+                <div class="mt-auto price-box">
+                    <div class="d-flex flex-column mb-4">
+                        <span class="text-secondary fw-semibold text-uppercase mb-1" style="font-size: 0.85rem; letter-spacing: 1px;">Satış Fiyatı</span>
+                        <div class="d-flex align-items-baseline text-dark">
+                            <h2 class="fw-bolder mb-0" style="font-size: 2.2rem; letter-spacing: -1px; color: var(--hb-orange) !important;">
+                                @Model.Product.Price.ToString("N2")
+                            </h2>
+                            <span class="ms-2 fw-bold" style="font-size: 1.5rem; color: var(--hb-orange);">TL</span>
+                        </div>
+                    </div>
+
+                    @if (!User.IsInRole("admin") && User.Identity.IsAuthenticated)
+                    {
+                        <form asp-controller="Cart" asp-action="AddToCart" method="POST" class="mt-2">
+                            <input type="hidden" name="productId" value="@Model.Product.Id" />
+
+                            <div class="row g-3">
+                                <div class="col-sm-4">
+                                    <div class="input-group input-group-lg shadow-sm" style="border-radius: var(--radius-md); overflow: hidden;">
+                                        <span class="input-group-text bg-white border-0 text-muted">Adet</span>
+                                        <input type="number" name="quantity" value="1" min="1" step="1" class="form-control fw-bold border-0 text-center" />
+                                    </div>
+                                </div>
+                                <div class="col-sm-8">
+                                    <button type="submit" class="add-to-cart-btn">
+                                        <i class="fas fa-cart-plus fs-5"></i>
+                                        Sepete Ekle
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    }
+                    else if (!User.Identity.IsAuthenticated)
+                    {
+                        <div class="alert alert-warning border-warning shadow-sm rounded-3 mb-0 d-flex align-items-center">
+                            <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; min-width: 40px;">
+                                <i class="fas fa-lock fs-5"></i>
+                            </div>
+                            <div>
+                                Ürünü sepete eklemek için lütfen <a href="/Account/Login" class="alert-link fw-bold text-dark">giriş yapın</a>.
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Product Description & Reviews Tabs *@
+    <div class="row mt-5 pt-3" id="reviews-section">
+        <div class="col-12">
+            <div class="bg-white rounded-top" style="border: 1px solid var(--border-color); border-bottom: none;">
+                <ul class="nav nav-tabs nav-tabs-premium" id="productTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="desc-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab">
+                            <i class="fas fa-align-left me-2"></i>Ürün Açıklaması
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#comments" type="button" role="tab">
+                            <i class="fas fa-comments me-2"></i>Değerlendirmeler (@totalComments)
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="tab-content tab-content-premium">
+                <div class="tab-pane fade show active" id="description" role="tabpanel">
+                    <div class="text-dark" style="line-height: 1.8; font-size: 1.05rem;">
+                        @Html.Raw(Model.Product.Description)
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="comments" role="tabpanel">
+                    <partial name="_PartialComments" for="@Model.Comments" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Similar Products *@
+    @if(Model.SimilarProducts != null && Model.SimilarProducts.Count > 0)
+    {
+        <div class="row mt-5 pt-5">
+            <div class="col-12">
+                <h3 class="similar-products-title">Benzer Ürünler</h3>
+            </div>
+            @foreach(var item in Model.SimilarProducts)
+            {
+                <div class="col-6 col-md-4 col-lg-3 mb-4">
+                    <div class="hb-product-card tb-similar-card">
+                        <a href="/Shop/Details/@item.Id" class="text-decoration-none d-flex flex-column h-100">
+                            <div class="hb-product-image-wrapper">
+                                <img src="@ProductImageHelper.GetUrl(item.Images.FirstOrDefault()?.ImageUrl)" alt="@item.Name" onerror="this.src='@ProductImageHelper.GetUrl(null)'" />
+                            </div>
+                            <div class="hb-product-content">
+                                <span class="hb-product-kicker">Benzer seçim</span>
+                                <h3 class="hb-product-title">@item.Name</h3>
+                                <div class="hb-product-price mt-auto">@item.Price.ToString("N2") TL</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Image Zoom Logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('main-zoom-container');
+            const img = document.getElementById('image-box');
+            
+            if(container && img) {
+                container.addEventListener('mousemove', function(e) {
+                    const rect = container.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const xPercent = (x / rect.width) * 100;
+                    const yPercent = (y / rect.height) * 100;
+                    
+                    img.style.transformOrigin = `${xPercent}% ${yPercent}%`;
+                });
+                
+                container.addEventListener('mouseleave', function() {
+                    img.style.transformOrigin = `center center`;
+                });
+            }
+        });
+
+        // Thumbnail Click Logic
+        function changeImage(element) {
+            const mainImg = document.getElementById('image-box');
+            mainImg.src = element.src;
+            
+            // Handle active class
+            document.querySelectorAll('.thumb-image').forEach(t => t.classList.remove('active'));
+            element.classList.add('active');
+        }
+    </script>
+}

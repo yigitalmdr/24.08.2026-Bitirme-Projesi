@@ -1,0 +1,165 @@
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Giriş Yap";
+}
+
+@section Scripts {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+    @if(TempData["SessionExpiredWarning"] != null)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Oturum Uyarı',
+                    text: '@Html.Raw(TempData["SessionExpiredWarning"])',
+                    confirmButtonColor: '#ff6000',
+                    confirmButtonText: 'Tamam'
+                });
+            });
+        </script>
+    }
+}
+
+<style>
+    body {
+        background-color: #fcfcfc;
+    }
+    .hb-login-container {
+        max-width: 420px;
+        margin: 60px auto;
+        background: #fff;
+        padding: 40px 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        border: 1px solid #eaeaea;
+    }
+    .hb-login-logo {
+        color: var(--hb-orange, #ff6000);
+        font-size: 2.2rem;
+        font-weight: 900;
+        letter-spacing: -1px;
+        text-align: center;
+        display: block;
+        margin-bottom: 30px;
+    }
+    .hb-login-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #484848;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+    .hb-form-control {
+        height: 52px;
+        border-radius: 8px;
+        border: 1px solid #d1d1d1;
+        font-size: 15px;
+        padding-left: 18px;
+    }
+    .hb-form-control:focus {
+        border-color: var(--hb-orange, #ff6000);
+        box-shadow: 0 0 0 0.2rem rgba(255, 96, 0, 0.15);
+        outline: none;
+    }
+    .hb-btn-login {
+        background-color: var(--hb-orange, #ff6000);
+        color: #fff;
+        height: 52px;
+        font-weight: 700;
+        font-size: 16px;
+        border-radius: 8px;
+        border: none;
+        width: 100%;
+        transition: background-color 0.2s;
+        margin-top: 10px;
+    }
+    .hb-btn-login:hover {
+        background-color: #e55600;
+        color: #fff;
+    }
+    .hb-forgot-pass {
+        color: #006aff;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        display: block;
+        text-align: center;
+        margin-top: 18px;
+    }
+    .hb-forgot-pass:hover {
+        text-decoration: underline;
+    }
+    .hb-register-prompt {
+        text-align: center;
+        margin-top: 30px;
+        font-size: 14px;
+        color: #484848;
+        padding-top: 20px;
+        border-top: 1px solid #eaeaea;
+    }
+    .hb-register-prompt a {
+        color: var(--hb-orange, #ff6000);
+        font-weight: 700;
+        text-decoration: none;
+    }
+    .hb-register-prompt a:hover {
+        text-decoration: underline;
+    }
+
+    .validation-summary-errors {
+        background: #ffebeb;
+        padding: 12px;
+        border-radius: 8px;
+        color: #d93025 !important;
+        border: 1px solid #ffcdcd;
+        margin-bottom: 20px;
+        animation: shake 0.5s ease-in-out;
+        list-style-type: none;
+    }
+    
+    .validation-summary-errors ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    @@keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-8px); }
+        40%, 80% { transform: translateX(8px); }
+    }
+</style>
+
+<div class="container">
+    <div class="hb-login-container">
+        <h2 class="hb-login-title mt-2">Giriş yap veya üye ol</h2>
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3 text-center small fw-bold"></div>
+
+        <form asp-action="Login" asp-controller="Account">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="ReturnUrl" value="@Model.ReturnUrl" />
+
+            <div class="form-group mb-3">
+                <input asp-for="Email" class="form-control hb-form-control" placeholder="E-posta Adresi" />
+                <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <input asp-for="Password" class="form-control hb-form-control" placeholder="Şifre" type="password" />
+                <span asp-validation-for="Password" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <button type="submit" class="hb-btn-login">Giriş Yap</button>
+
+            <a asp-action="ForgotPassword" asp-controller="Account" class="hb-forgot-pass">Şifremi Unuttum</a>
+        </form>
+
+        <div class="hb-register-prompt">
+            Hesabın yok mu? <a asp-action="Register" asp-controller="Account">Hemen Üye Ol</a>
+        </div>
+    </div>
+</div>
